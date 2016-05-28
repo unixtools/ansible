@@ -1,0 +1,7 @@
+- name: Setup Real Root
+  gather_facts: False
+  hosts: "{{hosts}}"
+  user: root
+  tasks:
+    - name: update hostname
+      hostname: name={{hostname}}

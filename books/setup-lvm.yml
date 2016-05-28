@@ -1,0 +1,26 @@
+- name: Setup LVM for /local
+  gather_facts: False
+  hosts: "{{hosts}}"
+  user: root
+  tasks:
+    - name: Create /local
+      file: path=/local owner=root group=root mode=755 state=directory
+
+    - name: check for vg
+      stat: path=/dev/data 
+      register: vgexists
+
+    - name: Create VG
+      when: not vgexists.stat.exists
+      ignore_errors: yes
+      command: vgcreate data /dev/xvdf
+
+    - name: Create LV
+      lvol: vg=data lv=local size="95%FREE" state=present
+
+    - name: Make FS
+      ignore_errors: yes
+      command: mkfs.ext4 -j -m 0 -i 65535 /dev/data/local
+
+    - name: Mount FS
+      mount: name=/local src=/dev/data/local fstype=ext4 opts=noatime state=mounted
