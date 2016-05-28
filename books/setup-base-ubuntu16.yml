@@ -3,8 +3,11 @@
   hosts: "{{hosts}}"
   user: root
   tasks:
+    - name: update hostname
+      hostname: name={{hostname}}
+
     - name: copy apt config
-      copy: src=../templates/apt-999local dest=/etc/apt/apt.conf.d/999local owner=root group=root mode=600
+      copy: src=../templates/apt-999local dest=/etc/apt/apt.conf.d/999local owner=root group=root mode=600 force=yes
 
     - name: setup packagecloud
       script: ../templates/setup-packagecloud-unixtools.sh creates=/etc/apt/sources.list.d/unixtools_packages.list
@@ -49,6 +52,12 @@
         - ntp
         - aptitude
 
+    - name: copy perltidy rc
+      copy: src=../templates/perltidyrc dest=/etc/perltidyrc owner=root group=root mode=644 force=yes
+
+    - name: copy vimrc
+      copy: src=../templates/vimrc dest=/etc/vim/vimrc owner=root group=root mode=644 force=yes
+
     - name: Autoremove unused packages
       command: apt-get -y autoremove
       register: autoremove_output
@@ -62,7 +71,8 @@
       with_items:
         - pip
         - awscli
-        - virtualenv
+        - aws-shell
+        - boto
 
     - name: Create /local
       file: path=/local owner=root group=root mode=755 state=directory

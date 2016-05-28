@@ -39,6 +39,8 @@ if ($dynhost) {
     open( my $out, ">$tmpinv" );
     print $out "[$hostkey]\n";
     print $out "$host\n";
+    print $out "[$hostkey:vars]\n";
+    print $out "hostname=$host\n";
     close($out);
 }
 
