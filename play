@@ -1,0 +1,51 @@
+#!/usr/bin/perl
+
+use strict;
+use Getopt::Long;
+use Cwd;
+
+my $res;
+my $host;
+my $dynhost;
+my $help;
+my $res = GetOptions(
+    "host|h=s"  => \$host,
+    "dynhost=s" => \$dynhost,
+    "help+"     => \$help,
+);
+
+if ( !$res || ( !$host && !$dynhost ) || $help || ( scalar(@ARGV) < 1 ) ) {
+    print "Usage: $0 --host|--dynhost $host [optional ansible-playbook args] playbook.xml ...\n";
+	print "  If dynhost is used, will set up temporary inventory with just that FQDN.\n";
+	print "  If host is used, will use the existing 'hosts' inventory file.\n";
+    exit;
+}
+
+my $pwd = cwd;
+$ENV{ANSIBLE_CONFIG}    = "$pwd/ansible.cfg";
+$ENV{ANSIBLE_INVENTORY} = "$pwd/hosts";
+
+my @inv = ();
+my $tmpinv = "/tmp/ansible-hosts-$$";
+
+my $hostkey = $host;
+if ($dynhost) {
+    push( @inv, "-i" => $tmpinv );
+
+    $hostkey = lc $host;
+    $hostkey =~ s/\..*//go;
+
+    unlink($tmpinv);
+    open( my $out, ">$tmpinv" );
+    print $out "[$hostkey]\n";
+    print $out "$host\n";
+    close($out);
+}
+
+my @cmd = ( "ansible-playbook", "-v", @inv, "-u" => "root", "--extra-vars" => "hosts=$hostkey", @ARGV );
+print "+ ", join( " ", @cmd ), "\n";
+system(@cmd);
+
+if ($dynhost) {
+    unlink($tmpinv);
+}

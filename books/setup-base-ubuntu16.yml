@@ -1,0 +1,69 @@
+- name: Setup Real Root
+  gather_facts: False
+  hosts: "{{hosts}}"
+  user: root
+  tasks:
+    - name: copy apt config
+      copy: src=../templates/apt-999local dest=/etc/apt/apt.conf.d/999local owner=root group=root mode=600
+
+    - name: setup packagecloud
+      script: ../templates/setup-packagecloud-unixtools.sh creates=/etc/apt/sources.list.d/unixtools_packages.list
+
+    - name: setup debconf settings
+      script: ../templates/setup-debconf.sh
+
+    - name: Update apt cache
+      apt: update_cache=yes force=yes
+
+    - name: Upgrade server
+      command: apt-get -y upgrade
+
+    - name: Install apt packages
+      apt: name={{ item }} state=installed
+      with_items:
+        - rclocal
+        - authsrv
+        - env-tweaks
+        - git-identity-helper
+        
+    - name: Install apt packages
+      apt: name={{ item }} state=installed
+      with_items:
+        - python
+        - python-dev
+        - python-setuptools
+        - build-essential
+        - git
+        - unzip
+        - libjson-perl
+        - vim
+        - perltidy
+        - vim
+        - zip
+        - sysstat
+        - wireshark
+        - tcpdump
+        - strace
+        - nmap
+        - unattended-upgrades
+        - ntp
+        - aptitude
+
+    - name: Autoremove unused packages
+      command: apt-get -y autoremove
+      register: autoremove_output
+      changed_when: "'The following packages will be REMOVED' in autoremove_output.stdout"
+
+    - name: Install apt packages
+      easy_install: name=pip
+
+    - name: Install pip packages
+      pip: name={{ item }} state=latest
+      with_items:
+        - pip
+        - awscli
+        - virtualenv
+
+    - name: Create /local
+      file: path=/local owner=root group=root mode=755 state=directory
+

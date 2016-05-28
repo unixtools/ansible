@@ -1,0 +1,15 @@
+- name: Setup Real Root
+  gather_facts: false
+  hosts: "{{hosts}}"
+  user: ubuntu
+  become: yes
+  tasks:
+  - name: make sure python is installed
+    raw: apt-get -y install python-simplejson creates=/usr/bin/python
+
+  - name: make root ssh dir
+    file: path=/root/.ssh owner=root group=root mode=700 state=directory
+
+  - name: copy auth keys
+    copy: src=../templates/authorized_keys/default dest=/root/.ssh/authorized_keys owner=root group=root mode=600
+
