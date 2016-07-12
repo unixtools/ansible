@@ -30,6 +30,7 @@ my $tmpinv = "/tmp/ansible-hosts-$$";
 
 my $hostkey = $host;
 if ($dynhost) {
+	$host = $dynhost;
     push( @inv, "-i" => $tmpinv );
 
     $hostkey = lc $host;
@@ -42,6 +43,8 @@ if ($dynhost) {
     print $out "[$hostkey:vars]\n";
     print $out "hostname=$host\n";
     close($out);
+
+	system("cat $tmpinv");
 }
 
 my @cmd = ( "ansible-playbook", "-v", @inv, "-u" => "root", "--extra-vars" => "hosts=$hostkey", @ARGV );

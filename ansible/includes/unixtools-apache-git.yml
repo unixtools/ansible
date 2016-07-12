@@ -1,0 +1,11 @@
+    - name: make local dir
+      file: path=/local owner=root group=root mode=755 state=directory
+
+    - name: Install git code - unixtools/apache
+      become: yes
+      become_user: root
+      git: repo=https://github.com/unixtools/apache.git
+           dest=/local/apache
+           update=yes
+           force=yes
+           version=master

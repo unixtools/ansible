@@ -1,0 +1,11 @@
+    - name: make local dir
+      file: path=/local owner=root group=root mode=755 state=directory
+
+    - name: Install git code - unixtools/jdk
+      become: yes
+      become_user: root
+      git: repo=https://github.com/unixtools/jdk.git
+           dest=/local/jdk
+           update=yes
+           force=yes
+           version=master

@@ -1,0 +1,9 @@
+- name: Setup Base Apahe
+  gather_facts: False
+  hosts: "{{hosts}}"
+  user: root
+  become_user: root
+  become: yes
+  tasks:
+    - include: ../includes/unixtools-apache-git.yml
+

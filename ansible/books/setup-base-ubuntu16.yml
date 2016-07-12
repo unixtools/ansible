@@ -51,6 +51,10 @@
         - unattended-upgrades
         - ntp
         - aptitude
+        - sysstat
+        - libcgi-pm-perl
+        - mailutils
+        - moreutils
 
     - name: copy perltidy rc
       copy: src=../templates/perltidyrc dest=/etc/perltidyrc owner=root group=root mode=644 force=yes
